@@ -113,7 +113,7 @@ onMounted(() => {
 					const { path } = diff;
 					const key = path[path.length >= 2 ? path.length - 2 : path.length - 1];
 					const needKey = path.at(-1);
-					console.log(key);
+
 					const target = data[key];
 					if (target) {
 						contentRef.value += `${contentRef.value} \n 属性${key}缺少配置${needKey}`
