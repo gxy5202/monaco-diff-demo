@@ -1,6 +1,5 @@
 <template>
 	<div id="monaco"></div>
-	<div id="domWidget">{{ contentRef }}</div>
 </template>
 <script setup lang="ts">
 import { onMounted, ref } from 'vue';
@@ -61,6 +60,10 @@ onMounted(() => {
 			}
 		}
 	};
+
+
+	// const editor = monaco.createDiffEditor(contentRef, originJson);
+	
 	const editor = monaco.editor.create(document.getElementById("monaco"), {
 		value: JSON.stringify(newJson, null, 4),
 		minimap: {
