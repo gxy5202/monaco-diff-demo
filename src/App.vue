@@ -63,7 +63,7 @@ onMounted(() => {
 
 
 	// const editor = monaco.createDiffEditor(contentRef, originJson);
-	
+
 	const editor = monaco.editor.create(document.getElementById("monaco"), {
 		value: JSON.stringify(newJson, null, 4),
 		minimap: {
@@ -131,7 +131,17 @@ onMounted(() => {
 							getId: function () { return `domWidget-${key}`; },
 							getDomNode: function () { return this.domNode; },
 							getPosition: function () {
-								return { position: { lineNumber: target.startLine, column: counts[target.startLine] }, preference: [monaco.editor.ContentWidgetPositionPreference.EXACT] }
+								const editorLayout = editor.getLayoutInfo();
+								const left = (editorLayout.contentWidth - this.domNode.getBoundingClientRect().width - 20);
+								console.log(left);
+								// setTimeout(() => {
+								// 	this.domNode.style.left = left;
+								// })
+								return {
+									position: { lineNumber: target.startLine },
+									preference: [monaco.editor.ContentWidgetPositionPreference.EXACT],
+									offsetX: left
+								}
 							}
 						});
 						editor.createDecorationsCollection([{
