@@ -61,6 +61,35 @@ onMounted(() => {
 		}
 	};
 
+	const xmlData = '<span><a>1</a></span>'
+
+	function formatXML(xml) {
+		let formatted = '';
+		const reg = /(>)(<)(\/*)/g;
+		xml = xml.replace(reg, '$1\r\n$2$3');
+		let pad = 0;
+
+		xml.split('\r\n').forEach(node => {
+			let indent = 0;
+			if (node.match(/.+<\/\w[^>]*>$/)) {
+				indent = 0;
+			} else if (node.match(/^<\/\w/)) {
+				if (pad != 0) {
+					pad -= 1;
+				}
+			} else if (node.match(/^<\w[^>]*[^\/]>.*$/)) {
+				indent = 1;
+			} else {
+				indent = 0;
+			}
+
+			const padding = '  '.repeat(pad);
+			formatted += padding + node + '\r\n';
+			pad += indent;
+		});
+
+		return formatted;
+	}
 
 	// const editor = monaco.createDiffEditor(contentRef, originJson);
 
@@ -73,15 +102,15 @@ onMounted(() => {
 		codeLens: false,
 		disableLayerHinting: true,
 		automaticLayout: true,
-		language: "json",
+		language: "html",
 		readOnly: true
 	});
 
 	window.editor = editor;
 
 	setTimeout(() => {
-		editor.getAction('editor.action.formatDocument')?.run();
-	},)
+		editor.getAction('editor.action.formatDocument')?._run();
+	})
 
 
 	// 比较两个对象的差异，并标记出差异所在的行号
@@ -132,15 +161,17 @@ onMounted(() => {
 							getDomNode: function () { return this.domNode; },
 							getPosition: function () {
 								const editorLayout = editor.getLayoutInfo();
-								const left = (editorLayout.contentWidth - this.domNode.getBoundingClientRect().width - 20);
-								console.log(left);
-								// setTimeout(() => {
-								// 	this.domNode.style.left = left;
-								// })
+								const left = (editorLayout.contentWidth - this.domNode.getBoundingClientRect().width - 20) + 'px';
+
+								const top = editor.getTopForLineNumber(target.startLine);
+                    			const bottom = editor.getTopForLineNumber(target.startLine + target.lineCount);
+								setTimeout(() => {
+									this.domNode.style.left = left;
+									this.domNode.style.height = (bottom - top) + 'px';
+								}, 500)
 								return {
-									position: { lineNumber: target.startLine },
-									preference: [monaco.editor.ContentWidgetPositionPreference.EXACT],
-									offsetX: left
+									position: { lineNumber: target.startLine, column: 1 },
+									preference: [monaco.editor.ContentWidgetPositionPreference.EXACT]
 								}
 							}
 						});
@@ -149,12 +180,20 @@ onMounted(() => {
 							options: {
 								isWholeLine: true,
 								className: 'line-highlight',
-								before: {
-									content: `属性${key}缺少配置${needKey}`,
-									inlineClassName: 'fudong'
-								}
+								// after: {
+								// 	content: ' ',
+								// 	inlineClassName: 'fudong'
+								// }
 							}
 						}]);
+
+						// editor.createDecorationsCollection([{
+						// 	range: new monaco.Range(target.startLine, 1, target.startLine + target.lineCount, 1),
+						// 	options: {
+						// 		isWholeLine: false,
+						// 		className: 'h-highlight',
+						// 	}
+						// }]);
 					}
 				}
 			});
@@ -203,6 +242,11 @@ onMounted(() => {
 	height: 100%;
 }
 
+.fudong {
+	width: 1px;
+	height: 30px;
+	background-color: green;
+}
 .domWidget {
 	width: 200px;
 	height: 300px;

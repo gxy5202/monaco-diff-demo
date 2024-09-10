@@ -6,6 +6,6 @@ const monaco = ((monacoEditorPlugin as any).default) as Function;
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [vue(), monaco({
-      languageWorkers: ['json']
+      languageWorkers: ['json', 'html']
   })],
 })
